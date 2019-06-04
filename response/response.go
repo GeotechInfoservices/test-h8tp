@@ -105,7 +105,7 @@ func HandleValidationError(path string, errors error) []Error {
 	}
 
 	logrus.Info("Fell through")
-	return []Error{}
+	return errs
 }
 
 // BadInput implies an error in the input, according to the entity validation rules.
