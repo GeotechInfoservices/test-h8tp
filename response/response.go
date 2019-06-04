@@ -72,13 +72,37 @@ func OK(body interface{}) (events.APIGatewayProxyResponse, error) {
 }
 
 type Error struct {
-	Field string `json:"field"`
+	Path  string `json:"path"`
 	Error string `json:"error"`
 }
 
 type ValidationError struct {
 	Error  string  `json:"error"`
 	Errors []Error `json:"validation"`
+}
+
+// HandleValidationError recursively walks a tree of errors and flattens them into json path style
+func HandleValidationError(path string, errors error) []Error {
+	var errs []Error
+
+	switch err := errors.(type) {
+	case govalidator.Errors:
+		for _, e := range err.Errors() {
+			errs = append(errs, HandleValidationError(path, e)...)
+		}
+	case govalidator.Error:
+		path += "."
+		path += err.Name
+
+		return []Error{
+			{
+				Path:  path,
+				Error: err.Error(),
+			},
+		}
+	}
+
+	return []Error{}
 }
 
 // BadInput implies an error in the input, according to the entity validation rules.
@@ -88,13 +112,7 @@ func BadInput(errors error) (events.APIGatewayProxyResponse, error) {
 	}
 	switch err := errors.(type) {
 	case govalidator.Errors:
-		logrus.Infof("Errors: %+v", err.Errors())
-		logrus.Infof("Error: %+v", err.Error())
-		for _, e := range err.Errors() {
-			logrus.Errorf("type of error. %+v", e)
-			et := e.(govalidator.Error)
-			out.Errors = append(out.Errors, Error{Error: et.Error(), Field: et.Name})
-		}
+		out.Errors = HandleValidationError("$", err)
 	default:
 		logrus.Errorf("Error while handling Bad Input. %+v", err)
 		e, _ := json.Marshal(map[string]string{
