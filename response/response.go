@@ -87,10 +87,12 @@ func HandleValidationError(path string, errors error) []Error {
 
 	switch err := errors.(type) {
 	case govalidator.Errors:
+		logrus.Infof("Handling an errors: %+v", err)
 		for _, e := range err.Errors() {
 			errs = append(errs, HandleValidationError(path, e)...)
 		}
 	case govalidator.Error:
+		logrus.Infof("Handling an error: %+v", err)
 		path += "."
 		path += err.Name
 
@@ -102,6 +104,7 @@ func HandleValidationError(path string, errors error) []Error {
 		}
 	}
 
+	logrus.Info("Fell through")
 	return []Error{}
 }
 
