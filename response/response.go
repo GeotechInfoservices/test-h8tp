@@ -88,6 +88,8 @@ func BadInput(errors error) (events.APIGatewayProxyResponse, error) {
 	}
 	switch err := errors.(type) {
 	case govalidator.Errors:
+		logrus.Infof("Errors: %+v", err.Errors())
+		logrus.Infof("Error: %+v", err.Error())
 		for _, e := range err.Errors() {
 			logrus.Errorf("type of error. %+v", e)
 			et := e.(govalidator.Error)
