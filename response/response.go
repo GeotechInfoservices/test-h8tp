@@ -5,6 +5,7 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/sirupsen/logrus"
 )
 
 // InvalidRequest response for API. This automatically wraps the error message in the correct format.
@@ -91,6 +92,21 @@ func BadInput(errors error) (events.APIGatewayProxyResponse, error) {
 			et := e.(govalidator.Error)
 			out.Errors = append(out.Errors, Error{Error: et.Error(), Field: et.Name})
 		}
+	default:
+		logrus.Errorf("Error while handling Bad Input. %+v", err)
+		e, _ := json.Marshal(map[string]string{
+			"message": "internal server error",
+		})
+
+		return events.APIGatewayProxyResponse{
+			Headers: map[string]string{
+				"Access-Control-Allow-Credentials": "true",
+				"Access-Control-Allow-Origin":      "*",
+			},
+			StatusCode: 500,
+			Body:       string(e),
+		}, nil
+
 	}
 
 	raw, err := json.Marshal(out)
