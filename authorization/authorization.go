@@ -59,12 +59,9 @@ func CurrentUser(ctx events.APIGatewayProxyRequestContext) string {
 	return userID.(string)
 }
 
-// Handler for http requests
-type Handler func(request.Request) (events.APIGatewayProxyResponse, error)
-
 // AuthorizeWithOwner authorizes an http request.
 // Checks the request context for an owner id and performs checks based on the given config
-func AuthorizeWithOwner(h Handler, c Config) Handler {
+func AuthorizeWithOwner(h func(request.Request) (events.APIGatewayProxyResponse, error), c Config) func(request.Request) (events.APIGatewayProxyResponse, error) {
 	return func(req request.Request) (events.APIGatewayProxyResponse, error) {
 		userID := c.UserID(req)
 
