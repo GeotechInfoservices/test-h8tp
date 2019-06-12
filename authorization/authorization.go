@@ -54,14 +54,14 @@ func RequireScope(ctx events.APIGatewayProxyRequestContext, scope string) (strin
 // Returns the user currently authenticated
 func CurrentUser(ctx events.APIGatewayProxyRequestContext) string {
 	logrus.Infof("Context: %+v", ctx)
-	userID := ctx.Authorizer["sub"]
+	userID := ctx.Authorizer["principalId"]
 
 	return userID.(string)
 }
 
-// AuthorizeWithOwner authorizes an http request.
+// Authorize http request
 // Checks the request context for an owner id and performs checks based on the given config
-func AuthorizeWithOwner(h func(request.Request) (events.APIGatewayProxyResponse, error), c Config) func(request.Request) (events.APIGatewayProxyResponse, error) {
+func Authorize(h func(request.Request) (events.APIGatewayProxyResponse, error), c Config) func(request.Request) (events.APIGatewayProxyResponse, error) {
 	return func(req request.Request) (events.APIGatewayProxyResponse, error) {
 		userID := c.UserID(req)
 
