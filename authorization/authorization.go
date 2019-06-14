@@ -41,13 +41,10 @@ type Config struct {
 
 // GetOwner for the supplied context
 // Makes sure the user has the necessary scopes to perform the action requested
-func GetOwner(req request.Request) (string, error) {
-	owner, ok := req.RequestContext.Authorizer["owner_id"]
-	if !ok {
-		return "", MissingOwnerError("invalid token provided")
-	}
+func GetOwner(req request.Request) string {
+	owner := req.RequestContext.Authorizer["owner_id"]
 
-	return owner.(string), nil
+	return owner.(string)
 }
 
 // CurrentUser for the supplied context
@@ -64,13 +61,11 @@ func CurrentUser(ctx events.APIGatewayProxyRequestContext) string {
 func Authorize(h func(request.Request) (events.APIGatewayProxyResponse, error), c Config) func(request.Request) (events.APIGatewayProxyResponse, error) {
 	return func(req request.Request) (events.APIGatewayProxyResponse, error) {
 
-		owner, err := GetOwner(req)
-		if err != nil {
-			logrus.Errorf("%+v", err)
-			return response.Unauthorized("not allowed")
+		_, ok := req.RequestContext.Authorizer["owner_id"]
+		if !ok {
+			return response.Unauthorized("invalid token provided")
 		}
 
-		req.RequestContext.Authorizer["owner_id"] = owner
 		// req.RequestContext.Authorizer["role"] = "user"
 
 		// TODO: Handle roles
