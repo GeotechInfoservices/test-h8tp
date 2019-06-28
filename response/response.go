@@ -8,8 +8,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Response use APIGatewayProxyResponse
+type Response events.APIGatewayProxyResponse
+
 // InvalidRequest response for API. This automatically wraps the error message in the correct format.
-func InvalidRequest(msg string) (events.APIGatewayProxyResponse, error) {
+func InvalidRequest(msg string) (Response, error) {
 
 	resp := map[string]interface{}{
 		"error": msg,
@@ -17,7 +20,7 @@ func InvalidRequest(msg string) (events.APIGatewayProxyResponse, error) {
 
 	// ignore error, since we know this will always pass given a simple string.
 	b, _ := json.Marshal(resp)
-	return events.APIGatewayProxyResponse{
+	return Response{
 		Headers: map[string]string{
 			"Access-Control-Allow-Credentials": "true",
 			"Access-Control-Allow-Origin":      "*",
@@ -28,7 +31,7 @@ func InvalidRequest(msg string) (events.APIGatewayProxyResponse, error) {
 }
 
 // Unauthorized response for API. This automatically wraps the error message in the correct format.
-func Unauthorized(msg string) (events.APIGatewayProxyResponse, error) {
+func Unauthorized(msg string) (Response, error) {
 
 	resp := map[string]interface{}{
 		"error": msg,
@@ -36,7 +39,7 @@ func Unauthorized(msg string) (events.APIGatewayProxyResponse, error) {
 
 	// ignore error, since we know this will always pass given a simple string.
 	b, _ := json.Marshal(resp)
-	return events.APIGatewayProxyResponse{
+	return Response{
 		Headers: map[string]string{
 			"Access-Control-Allow-Credentials": "true",
 			"Access-Control-Allow-Origin":      "*",
@@ -47,7 +50,7 @@ func Unauthorized(msg string) (events.APIGatewayProxyResponse, error) {
 }
 
 // OK 200 response from api. This automatically marshals a struct and converts it to json
-func OK(body interface{}) (events.APIGatewayProxyResponse, error) {
+func OK(body interface{}) (Response, error) {
 	resp := map[string]interface{}{
 		"data": body,
 	}
@@ -55,13 +58,13 @@ func OK(body interface{}) (events.APIGatewayProxyResponse, error) {
 	if err != nil {
 		msg := map[string]string{"error": "error while retrieving items"}
 		b, _ := json.Marshal(msg)
-		return events.APIGatewayProxyResponse{
+		return Response{
 			StatusCode: 500,
 			Body:       string(b),
 		}, nil
 	}
 
-	return events.APIGatewayProxyResponse{
+	return Response{
 		Headers: map[string]string{
 			"Access-Control-Allow-Credentials": "true",
 			"Access-Control-Allow-Origin":      "*",
@@ -109,7 +112,7 @@ func HandleValidationError(path string, errors error) []Error {
 }
 
 // BadInput implies an error in the input, according to the entity validation rules.
-func BadInput(errors error) (events.APIGatewayProxyResponse, error) {
+func BadInput(errors error) (Response, error) {
 	out := ValidationError{
 		Error: "invalid input",
 	}
@@ -122,7 +125,7 @@ func BadInput(errors error) (events.APIGatewayProxyResponse, error) {
 			"message": "internal server error",
 		})
 
-		return events.APIGatewayProxyResponse{
+		return Response{
 			Headers: map[string]string{
 				"Access-Control-Allow-Credentials": "true",
 				"Access-Control-Allow-Origin":      "*",
@@ -138,7 +141,7 @@ func BadInput(errors error) (events.APIGatewayProxyResponse, error) {
 		// TODO: Do some checking
 	}
 
-	return events.APIGatewayProxyResponse{
+	return Response{
 		Headers: map[string]string{
 			"Access-Control-Allow-Credentials": "true",
 			"Access-Control-Allow-Origin":      "*",

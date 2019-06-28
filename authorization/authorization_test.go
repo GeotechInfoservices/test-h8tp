@@ -1,6 +1,7 @@
 package authorization
 
 import (
+	"context"
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestAuthorization(t *testing.T) {
-	handler := func(req request.Request) (events.APIGatewayProxyResponse, error) {
+	handler := func(ctx context.Context, req request.Request) (response.Response, error) {
 		return response.OK("Test")
 	}
 
@@ -38,8 +39,8 @@ func TestAuthorization(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.Name, func(t *testing.T) {
-			h := AuthorizeWithOwner(handler, tc.Config)
-			resp, err := h(tc.Request)
+			h := Authorize(handler, tc.Config)
+			resp, err := h(context.Background(), tc.Request)
 			if err != nil {
 				t.Log("Error while trying to execute handler", err)
 				t.Fail()
