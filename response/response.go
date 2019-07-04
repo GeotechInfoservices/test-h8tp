@@ -11,11 +11,30 @@ import (
 // Response use APIGatewayProxyResponse
 type Response events.APIGatewayProxyResponse
 
+// NotFound response for API.
+func NotFound(msg string) (Response, error) {
+
+	resp := map[string]interface{}{
+		"message": msg,
+	}
+
+	// ignore error, since we know this will always pass given a simple string.
+	b, _ := json.Marshal(resp)
+	return Response{
+		Headers: map[string]string{
+			"Access-Control-Allow-Credentials": "true",
+			"Access-Control-Allow-Origin":      "*",
+		},
+		StatusCode: 404,
+		Body:       string(b),
+	}, nil
+}
+
 // InvalidRequest response for API. This automatically wraps the error message in the correct format.
 func InvalidRequest(msg string) (Response, error) {
 
 	resp := map[string]interface{}{
-		"error": msg,
+		"message": msg,
 	}
 
 	// ignore error, since we know this will always pass given a simple string.
@@ -34,7 +53,7 @@ func InvalidRequest(msg string) (Response, error) {
 func Unauthorized(msg string) (Response, error) {
 
 	resp := map[string]interface{}{
-		"error": msg,
+		"message": msg,
 	}
 
 	// ignore error, since we know this will always pass given a simple string.
@@ -56,7 +75,7 @@ func OK(body interface{}) (Response, error) {
 	}
 	b, err := json.Marshal(resp)
 	if err != nil {
-		msg := map[string]string{"error": "error while retrieving items"}
+		msg := map[string]string{"message": "error while retrieving items"}
 		b, _ := json.Marshal(msg)
 		return Response{
 			StatusCode: 500,
