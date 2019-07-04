@@ -11,6 +11,25 @@ import (
 // Response use APIGatewayProxyResponse
 type Response events.APIGatewayProxyResponse
 
+// InternalServerError response for API.
+func InternalServerError() (Response, error) {
+
+	resp := map[string]interface{}{
+		"message": "internal server error",
+	}
+
+	// ignore error, since we know this will always pass given a simple string.
+	b, _ := json.Marshal(resp)
+	return Response{
+		Headers: map[string]string{
+			"Access-Control-Allow-Credentials": "true",
+			"Access-Control-Allow-Origin":      "*",
+		},
+		StatusCode: 500,
+		Body:       string(b),
+	}, nil
+}
+
 // NotFound response for API.
 func NotFound(msg string) (Response, error) {
 
