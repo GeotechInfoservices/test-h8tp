@@ -1,8 +1,6 @@
 package validation
 
 import (
-	"context"
-	"encoding/json"
 	"reflect"
 	"strings"
 
@@ -56,6 +54,7 @@ func ValidateStruct(data interface{}) *Error {
 	return nil
 }
 
+/*
 // Validate middleware.
 // Unmarshals and validates a struct
 func Validate(handlerFunc interface{}) Handler {
@@ -93,4 +92,4 @@ func Validate(handlerFunc interface{}) Handler {
 
 		return val, err
 	}
-}
+}*/
