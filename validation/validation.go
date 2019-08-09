@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -38,17 +39,26 @@ func ValidateStruct(data interface{}) *Error {
 			Error: "validation error",
 		}
 
-		for _, err := range err.(validator.ValidationErrors) {
-			namespace := strings.Split(err.Namespace(), ".")
-			namespace = namespace[1:]
-			path := strings.Join(namespace, ".")
-
+		switch e := err.(type) {
+		case *validator.InvalidValidationError:
+			fmt.Println(e)
 			out.Errors = append(out.Errors, Validation{
-				Path:  path,
-				Error: err.Tag(),
+				Path:  "",
+				Error: "invalid input",
 			})
+		case validator.ValidationErrors:
+			for _, err := range e {
+				namespace := strings.Split(err.Namespace(), ".")
+				namespace = namespace[1:]
+				path := strings.Join(namespace, ".")
+
+				out.Errors = append(out.Errors, Validation{
+					Path:  path,
+					Error: err.Tag(),
+				})
+			}
+			return &out
 		}
-		return &out
 	}
 
 	return nil
