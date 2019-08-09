@@ -46,6 +46,7 @@ func ValidateStruct(data interface{}) *Error {
 				Path:  "",
 				Error: "invalid input",
 			})
+			return &out
 		case validator.ValidationErrors:
 			for _, err := range e {
 				namespace := strings.Split(err.Namespace(), ".")
