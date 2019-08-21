@@ -75,6 +75,7 @@ func Authorize(h func(context.Context, request.Request) (response.Response, erro
 			return response.Unauthorized("invalid token provided")
 		}
 
+		fmt.Println(req)
 		scopes := strings.Split(req.RequestContext.Authorizer["scp"].(string), " ")
 		allow := Contains(c.RequiredScope, scopes)
 
