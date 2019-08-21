@@ -112,7 +112,7 @@ func OK(body interface{}) (Response, error) {
 }
 
 // ValidationError for handling validation errors
-func ValidationError(resp validation.Error) (Response, error) {
+func ValidationError(resp *validation.Error) (Response, error) {
 	b, err := json.Marshal(resp)
 	if err != nil {
 		msg := map[string]string{"message": "error while retrieving items"}
