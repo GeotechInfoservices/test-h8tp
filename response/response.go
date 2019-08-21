@@ -112,14 +112,20 @@ func OK(body interface{}) (Response, error) {
 	}, nil
 }
 
+// Error for validation errors.
 type Error struct {
 	Path  string `json:"path"`
 	Error string `json:"error"`
 }
 
+// ValidationError contains path for each error to be associated with
 type ValidationError struct {
-	Error  string  `json:"error"`
-	Errors []Error `json:"validation"`
+	Message string  `json:"error"`
+	Errors  []Error `json:"validation"`
+}
+
+func (e ValidationError) Error() string {
+	return e.Message
 }
 
 // HandleValidationError recursively walks a tree of errors and flattens them into json path style
@@ -128,12 +134,10 @@ func HandleValidationError(path string, errors error) []Error {
 
 	switch err := errors.(type) {
 	case govalidator.Errors:
-		logrus.Infof("Handling an errors: %+v", err)
 		for _, e := range err.Errors() {
 			errs = append(errs, HandleValidationError(path, e)...)
 		}
 	case govalidator.Error:
-		logrus.Infof("Handling an error: %+v", err)
 		path += "."
 		path += err.Name
 
@@ -143,16 +147,17 @@ func HandleValidationError(path string, errors error) []Error {
 				Error: err.Error(),
 			},
 		}
+	default:
+		return errs
 	}
 
-	logrus.Info("Fell through")
 	return errs
 }
 
 // BadInput implies an error in the input, according to the entity validation rules.
 func BadInput(errors error) (Response, error) {
 	out := ValidationError{
-		Error: "invalid input",
+		Message: "invalid input",
 	}
 	switch err := errors.(type) {
 	case govalidator.Errors:
