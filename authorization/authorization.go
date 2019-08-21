@@ -2,6 +2,8 @@ package authorization
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/xsided/h8tp/request"
@@ -47,20 +49,38 @@ func CurrentUser(ctx events.APIGatewayProxyRequestContext) string {
 	return userID.(string)
 }
 
+// Contains tests if a string exists in a scope
+func Contains(required string, scopes []string) bool {
+	for _, scope := range scopes {
+		if scope == required {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Authorize http request
 // Checks the request context for an owner id and performs checks based on the given config
 func Authorize(h func(context.Context, request.Request) (response.Response, error), c Config) func(context.Context, request.Request) (response.Response, error) {
 	return func(ctx context.Context, req request.Request) (response.Response, error) {
+
+		if c.RequiredScope == "" {
+			fmt.Println("Misconfigured authorization")
+			return response.InternalServerError()
+		}
 
 		_, ok := req.RequestContext.Authorizer["owner_id"]
 		if !ok {
 			return response.Unauthorized("invalid token provided")
 		}
 
-		// req.RequestContext.Authorizer["role"] = "user"
+		scopes := strings.Split(req.RequestContext.Authorizer["scp"].(string), " ")
+		allow := Contains(c.RequiredScope, scopes)
 
-		// TODO: Handle roles
-		// TODO: Handle correct scope in token, or deny access
+		if allow == false {
+			return response.Unauthorized("unauthorized")
+		}
 
 		return h(ctx, req)
 	}

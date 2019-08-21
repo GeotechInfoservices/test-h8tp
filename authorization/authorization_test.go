@@ -23,7 +23,7 @@ func TestAuthorization(t *testing.T) {
 		RequestContext: events.APIGatewayProxyRequestContext{
 			Authorizer: map[string]interface{}{
 				"owner_id": "",
-				"scp":      "openid",
+				"scp":      "openid auth",
 			},
 		},
 	}
@@ -34,7 +34,9 @@ func TestAuthorization(t *testing.T) {
 		Request    request.Request
 		StatusCode int
 	}{
-		{"No owner in token", Config{UserID: func(req request.Request) string { return "some-user-1" }}, req, 401},
+		{"No owner in token", Config{}, req, 401},
+		{"Not required scope", Config{RequiredScope: "non-existant"}, req, 401},
+		{"Not required scope", Config{RequiredScope: "auth"}, req, 200},
 	}
 
 	for _, tc := range tt {
@@ -48,6 +50,7 @@ func TestAuthorization(t *testing.T) {
 
 			if resp.StatusCode != tc.StatusCode {
 				t.Log("Unexpected status code, got %n, wanted %n", resp.StatusCode, tc.StatusCode)
+				t.Fail()
 			}
 		})
 	}

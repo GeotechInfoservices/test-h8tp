@@ -1,12 +1,8 @@
 package validation
 
 import (
-	"context"
 	"encoding/json"
 	"testing"
-
-	"github.com/xsided/h8tp/request"
-	"github.com/xsided/h8tp/response"
 )
 
 type Some struct {
@@ -27,12 +23,4 @@ func TestValidate(t *testing.T) {
 		t.Log()
 		t.Fail()
 	}
-}
-
-func TestValidateMiddleware(t *testing.T) {
-	handler := func(ctx context.Context, req request.Request, test TestStruct) (response.Response, error) {
-		return response.OK("Test")
-	}
-
-	Validate(handler)
 }
