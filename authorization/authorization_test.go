@@ -23,7 +23,8 @@ func TestAuthorization(t *testing.T) {
 		RequestContext: events.APIGatewayProxyRequestContext{
 			Authorizer: map[string]interface{}{
 				"owner_id": "",
-				"scp":      "openid auth",
+				"role":     "tester",
+				"scope":    "openid,auth",
 			},
 		},
 	}
@@ -34,9 +35,12 @@ func TestAuthorization(t *testing.T) {
 		Request    request.Request
 		StatusCode int
 	}{
-		{"No owner in token", Config{}, req, 401},
-		{"Not required scope", Config{RequiredScope: "non-existant"}, req, 401},
-		{"Not required scope", Config{RequiredScope: "auth"}, req, 200},
+		{"No owner in token", Config{}, req, 500},
+		{"Not required scope", Config{RequiredScope: "non-existant", Role: Administartor}, req, 401},
+		{"required scope", Config{RequiredScope: "auth"}, req, 200},
+		{"required role", Config{RequiredScope: "xyz", Role: Tester}, req, 200},
+		{"wrong role", Config{RequiredScope: "xyz", Role: Administartor}, req, 401},
+		{"no role required but has role", Config{RequiredScope: "xasdyz"}, req, 200},
 	}
 
 	for _, tc := range tt {
@@ -49,7 +53,7 @@ func TestAuthorization(t *testing.T) {
 			}
 
 			if resp.StatusCode != tc.StatusCode {
-				t.Log("Unexpected status code, got %n, wanted %n", resp.StatusCode, tc.StatusCode)
+				t.Logf("%s, Unexpected status code, got %d, wanted %d", tc.Name, resp.StatusCode, tc.StatusCode)
 				t.Fail()
 			}
 		})

@@ -29,8 +29,7 @@ func (e *MissingOwner) Error() string {
 // Config for authorization
 type Config struct {
 	RequiredScope string
-	OverrideScope string
-	UserID        func(req request.Request) string
+	Role          role
 }
 
 // GetOwner for the supplied context
@@ -60,6 +59,39 @@ func Contains(required string, scopes []string) bool {
 	return false
 }
 
+type role int
+
+// Roles
+const (
+	God           role = 6
+	Administartor role = 5
+	Publisher     role = 4
+	Operator      role = 3
+	Launcher      role = 2
+	Tester        role = 1
+)
+
+// Role tests if a role is present or higher in hierachy
+func Role(required role, r string) bool {
+	roles := map[string]role{
+		"tester":        Tester,
+		"launcher":      Launcher,
+		"operator":      Operator,
+		"publisher":     Publisher,
+		"administrator": Administartor,
+		"god":           God,
+	}
+
+	actual, ok := roles[r]
+	if ok {
+		if actual >= required {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Authorize http request
 // Checks the request context for an owner id and performs checks based on the given config
 func Authorize(h func(context.Context, request.Request) (response.Response, error), c Config) func(context.Context, request.Request) (response.Response, error) {
@@ -78,10 +110,18 @@ func Authorize(h func(context.Context, request.Request) (response.Response, erro
 		scopes := strings.Split(req.RequestContext.Authorizer["scope"].(string), ",")
 		allow := Contains(c.RequiredScope, scopes)
 
-		if allow == false {
-			return response.Unauthorized("unauthorized")
+		if allow == true {
+			return h(ctx, req)
 		}
 
-		return h(ctx, req)
+		r, ok := req.RequestContext.Authorizer["role"]
+		if ok {
+			allow = Role(c.Role, r.(string))
+			if allow == true {
+				return h(ctx, req)
+			}
+		}
+
+		return response.Unauthorized("unauthorized")
 	}
 }
