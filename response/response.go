@@ -3,8 +3,8 @@ package response
 import (
 	"encoding/json"
 
-	"dev.azure.com/ManyDigital/MDLiveQuiz/_git/livequiz-h8tp/validation"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/sankarbiswas07/h8tp/validation"
 )
 
 // Response use APIGatewayProxyResponse

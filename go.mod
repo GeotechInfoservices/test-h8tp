@@ -1,4 +1,4 @@
-module dev.azure.com/ManyDigital/MDLiveQuiz/_git/livequiz-h8tp
+module github.com/sankarbiswas07/h8tp
 
 require (
 	cloud.google.com/go v0.40.0 // indirect
