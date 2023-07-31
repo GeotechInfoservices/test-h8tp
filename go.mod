@@ -1,4 +1,4 @@
-module github.com/GeotechInfoservices/test-h8tp
+module github.com/geotechinfoservices/test-h8tp
 
 go 1.20
 

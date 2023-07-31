@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/GeotechInfoservices/test-h8tp/request"
-	"github.com/GeotechInfoservices/test-h8tp/response"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/geotechinfoservices/test-h8tp/request"
+	"github.com/geotechinfoservices/test-h8tp/response"
 )
 
 func TestAuthorization(t *testing.T) {

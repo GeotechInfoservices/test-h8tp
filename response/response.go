@@ -3,8 +3,8 @@ package response
 import (
 	"encoding/json"
 
-	"github.com/GeotechInfoservices/test-h8tp/validation"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/geotechinfoservices/test-h8tp/validation"
 )
 
 // Response use APIGatewayProxyResponse
