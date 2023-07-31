@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/GeotechInfoservices/test-h8tp/request"
+	"github.com/GeotechInfoservices/test-h8tp/response"
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/sankarbiswas07/h8tp/request"
-	"github.com/sankarbiswas07/h8tp/response"
 )
 
 // MissingOwnerError indicates a context was provided without an owner id present
