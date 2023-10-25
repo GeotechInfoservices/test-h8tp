@@ -69,11 +69,13 @@ const (
 	Operator      role = 3
 	Launcher      role = 2
 	Tester        role = 1
+	User          role = 0
 )
 
 // Role tests if a role is present or higher in hierachy
 func Role(required role, r string) bool {
 	roles := map[string]role{
+		"user":          User,
 		"tester":        Tester,
 		"launcher":      Launcher,
 		"operator":      Operator,

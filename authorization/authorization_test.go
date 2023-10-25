@@ -22,9 +22,13 @@ func TestAuthorization(t *testing.T) {
 		IsBase64Encoded: false,
 		RequestContext: events.APIGatewayProxyRequestContext{
 			Authorizer: map[string]interface{}{
-				"owner_id": "",
-				"role":     "tester",
-				"scope":    "openid,auth",
+				// "owner_id": "",
+				"role": "user",
+				// "scope":    "openid,auth",
+
+				"owner_id": "stephans-owner",
+				// "role":     "user",
+				"scope": "openid,results,events,games,fanshout,users,sponsors",
 			},
 		},
 	}
